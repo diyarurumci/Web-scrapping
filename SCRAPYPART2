@@ -1,1 +1,47 @@
+!!1 = Bu partta alakalı bir link serisi buldum linkler arasında page= bağlantısı vardı. aşağıdaki kod ile bütün pageleri dolaşıp title verisini aldım  : 
+
+
+import scrapy
+from scrapy.spiders import CrawlSpider, Rule
+from scrapy.linkextractors import LinkExtractor
+
+class MySpider(CrawlSpider):
+    name = 'myspider'
+    allowed_domains = ['books.toscrape.com']
+    start_urls = ['http://books.toscrape.com/catalogue/page-1.html']
+
+    rules = [
+        # LinkExtractor ile "page" kelimesini içeren ve ".html" ile biten tüm URL'leri eşleştirir.
+        # (\d+) ifadesi sayfa numarasını yakalar ve bu numarayı callback fonksiyonumuza geçer.
+        Rule(LinkExtractor(allow=r'page-\d+\.html'), callback='parse_page',follow = True),
+    ]
+
+    def parse_page(self, response):
+        # Sayfayı burada işleyin.
+        # Örneğin, kitap başlıklarını çekmek için şu şekilde kullanabilirsiniz:
+        book_titles = response.css('h3 > a::text').getall()
+        for title in book_titles:
+            yield {'title': title}
+
+
+!!2 = aşağıdaki kodda ise yukarıdaki işlemin aynısını farlı bir şekilde yapan bir kod yazdım bu sefer yukarıdaki gibi değil next tuşuna bastırtarak sayfaları gezdim:
+
+import scrapy
+from scrapy.spiders import CrawlSpider, Rule
+from scrapy.linkextractors import LinkExtractor
+
+class MySpider(CrawlSpider):
+    name = 'myspider'
+    allowed_domains = ['books.toscrape.com']
+    start_urls = ['http://books.toscrape.com/catalogue/page-1.html']
+
+    rules = [
+        Rule(LinkExtractor(restrict_css='li.next a'), callback='parse_page', follow=True),
+    ]
+
+    def parse_page(self, response):
+        # Sayfayı işleyin ve kitap başlıklarını çekin.
+        book_titles = response.css('h3 > a::text').getall()
+        for title in book_titles:
+            yield {'title': title}
 
