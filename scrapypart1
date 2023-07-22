@@ -1,0 +1,18 @@
+PART1 : BU PARTTA İSTEDİĞİMİZ TEK BİR LİNKTEKİ SAYFALARDAN TİTLE ÇEKMEYİ GÖRÜYORUZ DİĞER PARTLARDA ÜSTÜNE KOYA KOYA GİDECEĞİZ
+
+
+
+import scrapy
+
+class SipSpider(scrapy.Spider):
+    name = "sip"
+    allowed_domains = ["books.toscrape.com"]
+    start_urls = ["http://books.toscrape.com/"]
+
+    def parse(self, response):
+        books = response.css('h3 a')
+        for book in books:
+            title = book.css('::text').get()
+            yield {
+                "title": title.strip(),
+            }
