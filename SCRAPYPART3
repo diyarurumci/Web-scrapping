@@ -1,0 +1,29 @@
+AŞAĞIDAKİ KODUMUZDA İNDEED.COM SİTESİNİN URLLERİNE TEK TEK GİRMEK İÇİN ÇEŞİTLİ FONKSİYONLAR YAZDIK VE İŞE YARADI 
+ŞU ANLIK BU KOD İSTENİLEN URLLERİ ÜRETİP ONLARA REQUEST GÖNDERİYOR FAKAT SİTE DYNAMİC BİR SİTE OLDUGU İÇİN 
+VERİ ÇEKİMİNE KARŞI BİRSÜRÜ ÖNLEM GELİŞTRİMİŞ BU SEBEPLE BAZI LİNKLERE ULAŞAMMIYORUZ ERRROR ALIYORUZ AMA BU KODDA 
+BUNUN BİR ÖNEMİ YOK ÇÜNKÜ AMACIMIZ DOĞRU URLLERE GİRİŞİ SAĞLAMAK DAHA SONRA ERRORLLARA PROXY YARDIMI İLE ÇÖZÜM BULACAĞIZ
+
+
+import re
+import json
+import scrapy
+from urllib.parse import urlencode
+
+class IndeedJobSpider(scrapy.Spider):
+    name = "indeed_jobs"
+
+    def get_indeed_search_url(self, keyword, location, offset=0):
+        parameters = {"q": keyword, "l": location, "filter": 0, "start": offset}
+        return "https://www.indeed.com/jobs?" + urlencode(parameters)
+
+    def start_requests(self):
+        keyword_list = ['python']
+        location_list = ['texas']
+        for keyword in keyword_list:
+            for location in location_list:
+                indeed_jobs_url = self.get_indeed_search_url(keyword, location)
+                yield scrapy.Request(url=indeed_jobs_url, callback=self.parse_search_results, meta={'keyword': keyword, 'location': location, 'offset': 0})
+
+    def parse_search_results(self, response):
+        pass
+    
